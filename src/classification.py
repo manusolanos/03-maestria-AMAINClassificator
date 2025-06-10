@@ -375,6 +375,6 @@ def prepare_data(dir_path, clone_csv, nonclone_csv):
     return Vectors, Labels
 
 if __name__ == '__main__':
-    dir_path = '/home/manuel/Maestria/maestria-trainer/data'
+    dir_path = '/Users/manuelsolano/Documents/Maestria/maestria-trainer/data'
     prepare_data(dir_path, "BCB_clone_ast.csv", "BCB_nonclone_ast.csv")
     #example()

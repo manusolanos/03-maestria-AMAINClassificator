@@ -58,7 +58,7 @@ def example():
     '''
     print(mix_dataframes(df2, df1))
 
-def mix_data(dir_path, data_frame1, data_frame2):
+def mix_data_old(dir_path, data_frame1, data_frame2):
     cvs_file1 = dir_path + '/data_frame1.csv'
     cvs_file2 = dir_path + '/data_frame2.csv'
 
@@ -213,21 +213,24 @@ def add_columns_title(data_file):
 
 
 if __name__ == '__main__':
-    working_dir = '/home/manuel/Maestria/maestria-trainer/data'
+    working_dir = '/Users/manuelsolano/Documents/Maestria/maestria-trainer/data'
 
 
     # Step 1: CHOP in small pieces
-    #chop_data(working_dir, "data_frame1.csv", limit=5000)
-    #chop_data(working_dir, "data_frame2.csv", limit=5000)
-
     '''
+    chop_data(working_dir, "data_frame1.csv", limit=5000)
+    chop_data(working_dir, "data_frame2.csv", limit=5000)
+    '''
+
     # Step 2: Mix Files
+    '''
     for i in range(53):
-        file1 = f"/home/manuel/Maestria/maestria-trainer/data/chop_data/data_frame1_chunks/data_frame1_{(i+1)}.csv"
-        file2 = f"/home/manuel/Maestria/maestria-trainer/data/chop_data/data_frame2_chunks/data_frame2_{(i+1)}.csv"
+        file1 = f"{working_dir}/chop_data/data_frame1_chunks/data_frame1_{(i+1)}.csv"
+        file2 = f"{working_dir}/chop_data/data_frame2_chunks/data_frame2_{(i+1)}.csv"
         mix_data(working_dir,file1, file2)        
     '''
 
     # Step 3: Complement format for pandas works (read files with titles)
-    add_columns_title("/home/manuel/Maestria/maestria-trainer/data/mix_data/data_frame1_1_data_frame2_1.csv")
-
+    #add_columns_title(f"{working_dir}/mix_data/data_frame1_1_data_frame2_1.csv")
+    for i in range(1,53):
+        add_columns_title(f"{working_dir}/mix_data/data_frame1__data_frame2_1.csv")
