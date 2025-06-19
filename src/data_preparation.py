@@ -145,7 +145,7 @@ def chop_data(working_dir, csv_file, limit=5000):
     #Labels.extend([(1 if cloneSet else 0) for i in range(len(features))])
 
 def mix_data(working_dir, file_1, file_2):
-    if os.path.exists(file_1) and os.path.exists(file_2):
+    if os.path.exists(working_dir) and os.path.exists(file_1) and os.path.exists(file_2):
         results_dir = working_dir + '/mix_data/'
         if not os.path.exists(results_dir):
             os.mkdir(results_dir)
@@ -159,7 +159,7 @@ def mix_data(working_dir, file_1, file_2):
         # usage the min between dir_1 and dir_2 as limit in the combination
         limit = number_files_1 if number_files_1 <= number_files_2 else number_files_2
         new_file_name = os.path.basename(file_1).split('.')[0] + "_" + os.path.basename(file_2).split('.')[0] + ".csv"
-        print(f"Writing the new file {new_file_name} with the limit of {limit} and {limit * 2} rows")
+        print(f"Writing the new file {new_file_name} with the limit of {limit} and mix of {limit * 2} rows")
         
         with open(file_1, 'r', newline='') as csv_1, \
              open(file_2, 'r', newline='') as csv_2, \
@@ -220,17 +220,19 @@ if __name__ == '__main__':
     '''
     chop_data(working_dir, "data_frame1.csv", limit=5000)
     chop_data(working_dir, "data_frame2.csv", limit=5000)
-    '''
+    #'''
 
     # Step 2: Mix Files
     '''
-    for i in range(53):
-        file1 = f"{working_dir}/chop_data/data_frame1_chunks/data_frame1_{(i+1)}.csv"
-        file2 = f"{working_dir}/chop_data/data_frame2_chunks/data_frame2_{(i+1)}.csv"
+    for i in range(54):
+        file1 = f"{working_dir}/chop_data/data_frame1_chunks/data_frame1_{(i)}.csv"
+        file2 = f"{working_dir}/chop_data/data_frame2_chunks/data_frame2_{(i)}.csv"
         mix_data(working_dir,file1, file2)        
-    '''
+    #'''
 
     # Step 3: Complement format for pandas works (read files with titles)
     #add_columns_title(f"{working_dir}/mix_data/data_frame1_1_data_frame2_1.csv")
+    '''
     for i in range(1,53):
-        add_columns_title(f"{working_dir}/mix_data/data_frame1__data_frame2_1.csv")
+        add_columns_title(f"{working_dir}/mix_data/data_frame1_{str(i)}_data_frame2_{str(i)}.csv")
+    '''
