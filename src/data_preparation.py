@@ -2,105 +2,55 @@ import csv
 import os
 import pandas as pd
 #import numpy as np
+import shutil
 
-def mix_dataframes(dataFrame1, dataFrame2, limit=None):
-    index = 1
-    
-    if dataFrame1.shape[0] <= dataFrame2.shape[0]:
-        for i, row in dataFrame1.iterrows():        
-            dataFrame2 = Insert_row(index, dataFrame2, row)        
-            index += 2
+def prepare_data(dir_path, clone_csv, non_clone_csv):
+    if os.path.exists(dir_path):
+        clone_csv_file = dir_path + "/" + clone_csv
+        non_clone_csv_file = dir_path + "/" + non_clone_csv
 
-            if limit is not None and limit <= index:
-                break
-
-        # ... cut dataset
-        return dataFrame2.truncate(after=index)
-    else:
-        for i, row in dataFrame2.iterrows():        
-            dataFrame1 = Insert_row(index, dataFrame1, row)        
-            index += 2
-
-            if limit is not None and limit <= index:
-                break
-        # ... cut dataset
-        return dataFrame1.truncate(after=index)
-
-def example():
-    d1 = {'col1':[1, 3, 5, 7, 9]}
-    df1 = pd.DataFrame(data=d1)
-    d2 = {'col2' : [2, 4, 6, 8, 10]}
-    df2 = pd.DataFrame(data=d2)
-    #print(df1, "\n", df2)
-
-    
-    df1.insert(0, "x", value=101010101010)
-    #print(df1)
-    df1.columns = range(df1.shape[1]) # removes column title
-    #print(df1)
-
-    df2.insert(0, "x", value=999999999999)
-    #print(df2)
-    df2.columns = range(df2.shape[1]) # removes column title
-    #print(df2)
-
-    print("Proceso simplificado:\n")
-    # Iterating over rows
-    
-    '''
-    index = 1
-    #for row in df2.itertuples():        
-    for i, row in df2.iterrows():
-        #df1 = Insert_row(index, df1, [88888888888, 1])        
-        df1 = Insert_row(index, df1, row)        
-        index += 2'
-    print(df1)
-    '''
-    print(mix_dataframes(df2, df1))
-
-def mix_data_old(dir_path, data_frame1, data_frame2):
-    cvs_file1 = dir_path + '/data_frame1.csv'
-    cvs_file2 = dir_path + '/data_frame2.csv'
-
-    # ... step 1: create csv files
-    data_frame1.to_csv(cvs_file1, index=False)
-    # release memory
-    '''
-    try:
-        del data_frame1
-    except:
-        pass
-    '''
-
-    data_frame2.to_csv(cvs_file2, index=False)
-    # release memory
-    '''
-    try:
-        del data_frame2
-    except:
-        pass
-    '''
-    
-    # ... combine files
-    '''
-    with open(cvs_file1, 'r', newline='') as csv_1, \
-         open(cvs_file2, 'r', newline='') as csv_2, \
-         open(dir_path + '/data_frame_mixed.csv', 'w', newline='') as csv_mixed:
         
-        writer = csv.writer(csv_mixed)
-        count = 0
-
-        while True:            
-            line_csv_1 = csv_1.readline()
-            line_csv_2 = csv_2.readline()
-
-            count += 1
-            if not line_csv_1 or not line_csv_2 or count == 10:
-                break
-            
-            writer.writerow(line_csv_1)
-            writer.writerow(line_csv_2)
-    '''
+        if os.path.exists(clone_csv_file):
+            # Open the CSV file explicitly
+            with open(clone_csv_file, "r") as f:
+                # Read the CSV file into a DataFrame using the file object
+                clone_df = pd.read_csv(f)
+                #print(clone_df.head())
+                
+                # Step A.1 : removes the pair identifiers positionated in the first two columns
+                clone_df.drop(clone_df.columns[[0,1]], axis=1, inplace=True)            
+                
+                # Step A.2 : adds the label (1 = clone)
+                # Note the usage of the value of 1 in the second parameter that indicates column name, just to fulfill the first value in the first row
+                clone_df.insert(0, 1, 1) 
+                
+                # Step A.3 : save the clone dataframe with the label
+                cvs_file_clone_pair_labeled = dir_path + f'/{clone_csv.split('.')[0]}_labeled.csv'
+                clone_df.to_csv(cvs_file_clone_pair_labeled, index=False)
+        else:
+            print(f"The file :(clone={clone_csv_file}) does not exist!")  
+        
+        if os.path.exists(non_clone_csv_file):
+            # Open the CSV file explicitly
+            with open(non_clone_csv_file, "r") as f:
+                # Read the CSV file into a DataFrame using the file object
+                non_clone_df = pd.read_csv(f)
+                #print(nonclone_df.head())
+        
+                # Step B.1 : removes the pair identifiers positionated in the first two columns
+                non_clone_df.drop(non_clone_df.columns[[0,1]], axis=1, inplace=True)
+                
+                # Step B.2 : adds the label (0 = non_clone)
+                # Note the usage of the value of 0 in the second parameter that indicates column name, just to fulfill the first value in the first row
+                non_clone_df.insert(0, 0, 0) 
+                
+                # Step B.3 : save the non_clone dataframe with the label
+                cvs_file_non_clone_pair_labeled = dir_path + f'/{non_clone_csv.split('.')[0]}_labeled.csv'
+                non_clone_df.to_csv(cvs_file_non_clone_pair_labeled, index=False)
+        else:
+            print(f"The file :(non_clone={non_clone_csv_file}) does not exist!")  
+    else:
+        print(f"The path:({dir_path}) does not exist!")
 
 def chop_data(working_dir, csv_file, limit=5000):
     results_dir = working_dir + '/chop_data/'
@@ -177,7 +127,7 @@ def mix_data(working_dir, file_1, file_2):
                     writer.writerow(line)
                 except:
                     print("An exception writing rows has been ocurred!")
-        
+        print(f"The file {new_file_name} has been created in {results_dir}")
     else:
         print("Some directory does not exist!")
 
@@ -211,28 +161,73 @@ def add_columns_title(data_file):
     else:
         print(f"The file {data_file} does not exist!")
 
+def remove_dir_and_contents(path_to_dir):
+  """
+  Removes a directory and all its contents.
+
+  Args:
+    path_to_dir: The path to the directory to remove.
+  """
+  try:
+    shutil.rmtree(path_to_dir)
+  except OSError as e:
+    print(f"Error deleting {path_to_dir}: {e}")
+
+
+def append_files_in_dir(working_dir, dir_name, output_file):
+    if os.path.exists(working_dir + "/" + dir_name):
+        # remove the previous results file
+        results_file = working_dir + "/" + dir_name + f"/{output_file}.csv"
+        if os.path.exists(results_file):
+            print(f"Removing the previous results file: {results_file}")
+            os.remove(results_file)
+
+        # append all files in the directory
+        files = os.listdir(working_dir + "/" + dir_name)
+        if len(files) > 0:            
+            with open(results_file, 'w', newline='') as csv_results:
+                writer = csv.writer(csv_results)
+                for file in files:
+                    with open(working_dir + "/" + dir_name + "/" + file, 'r', newline='') as csv_file:
+                        reader = csv.reader(csv_file)
+                        for row in reader:
+                            writer.writerow(row)
+            print(f"All files have been appended in {results_file}")
+        else:
+            print(f"The directory {dir_name} is empty!")
+    else:
+        print(f"The directory {dir_name} does not exist!")
+
 
 if __name__ == '__main__':
-    working_dir = '/Users/manuelsolano/Documents/Maestria/maestria-trainer/data'
+    working_dir = '/home/manuel/Maestria/maestria-trainer/data'
+    clone_file_name = 'BCB_clone_ast'
+    non_clone_file_name = 'BCB_nonclone_ast'
 
 
-    # Step 1: CHOP in small pieces
+    # Step 1: Prepare data (remove columns and insert labels with clone and non-clone)
     '''
-    chop_data(working_dir, "data_frame1.csv", limit=5000)
-    chop_data(working_dir, "data_frame2.csv", limit=5000)
+    prepare_data(working_dir, f"{clone_file_name}.csv", f"{non_clone_file_name}.csv")
     #'''
 
-    # Step 2: Mix Files
+    # Step 2: CHOP in small pieces
     '''
-    for i in range(54):
-        file1 = f"{working_dir}/chop_data/data_frame1_chunks/data_frame1_{(i)}.csv"
-        file2 = f"{working_dir}/chop_data/data_frame2_chunks/data_frame2_{(i)}.csv"
-        mix_data(working_dir,file1, file2)        
+    chop_data(working_dir, f"{clone_file_name}_labeled.csv", limit=5000)
+    chop_data(working_dir, f"{non_clone_file_name}_labeled.csv", limit=5000)
     #'''
 
-    # Step 3: Complement format for pandas works (read files with titles)
-    #add_columns_title(f"{working_dir}/mix_data/data_frame1_1_data_frame2_1.csv")
+    # Step 3: Mix Files
     '''
-    for i in range(1,53):
-        add_columns_title(f"{working_dir}/mix_data/data_frame1_{str(i)}_data_frame2_{str(i)}.csv")
+    for i in range(53):
+        file_clones = f"{working_dir}/chop_data/{clone_file_name}_labeled_chunks/{clone_file_name}_labeled_{(i+1)}.csv"
+        file_non_clones = f"{working_dir}/chop_data/{non_clone_file_name}_labeled_chunks/{non_clone_file_name}_labeled_{(i+1)}.csv"
+        mix_data(working_dir,file_clones, file_non_clones)        
+    #'''
+
+    # Step 4: Complement format for pandas works (read files with titles)
     '''
+    # Step 4.1: Merge all files
+    append_files_in_dir(working_dir, "mix_data_reduced", output_file="all_data_mixed")
+    # Step 4.2: Add columns titles just to the first file
+    add_columns_title(f"{working_dir}/mix_data_reduced/all_data_mixed.csv")    
+    #'''
