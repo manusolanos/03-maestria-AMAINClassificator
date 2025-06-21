@@ -5,19 +5,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
 import joblib
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def random_forest(working_dir, data_file):
     data_file = working_dir + "/" + data_file
     if os.path.exists(data_file):
         df = pd.read_csv(data_file)
         #print(df.head())
-
-        # count the rows for the dependent variable
-        #sizes = df.iloc[:,0].value_counts(sort=1)
-        #print(sizes)
-
-
-        #To access all columns except the first column, use usecols=cols[:-1]
 
         # Handle missing values removing from dataset
         # df = df.dropna()
@@ -62,13 +57,41 @@ def random_forest(working_dir, data_file):
         model.fit(X_train, Y_train)
         
         Y_prediction_test = model.predict(X_test)           
-        # ... check prediction
-        accuracy =  metrics.accuracy_score(Y_test, Y_prediction_test)     
-        report = metrics.classification_report(Y_test, Y_prediction_test)
 
-        print(f"Accuracy: {accuracy}")
-        print("Classification Report:\n", report)
+        # Retrieve some metrics
+        # ... Param average = 'binary': 
+        # ......means binary classification, which is the default and is used when you have two classes. 
+        # ......If you have more than two classes, you can change it to 'macro' or 'weighted'.        
+        accuracy = metrics.accuracy_score(Y_test, Y_prediction_test)
+        precision = metrics.precision_score(Y_test, Y_prediction_test, average='binary')  # usa 'macro' o 'weighted' para multiclase
+        recall = metrics.recall_score(Y_test, Y_prediction_test, average='binary')
+        f1 = metrics.f1_score(Y_test, Y_prediction_test, average='binary')
+        cm = metrics.confusion_matrix(Y_test, Y_prediction_test)
 
+        # Show the results. 
+        # Model's metrics and confusion matrix
+        print("=== Métricas del Modelo ===")
+        print(f"Exactitud (Accuracy): {accuracy:.4f}")
+        print(f"Precisión (Precision): {precision:.4f}")
+        print(f"Sensibilidad (Recall): {recall:.4f}")
+        print(f"F1-score: {f1:.4f}")
+        print("\nMatriz de Confusión:")
+        print(cm)
+
+        # Confusion Matrix Visualization
+        plt.figure(figsize=(6, 4))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+        plt.title("Matriz de Confusión")
+        plt.xlabel("Etiqueta Predicha")
+        plt.ylabel("Etiqueta Verdadera")
+        # To see the plot interactively, run the code in a Jupyter Notebook or an environment that supports GUI windows and uncomment the next line:
+        # plt.show()
+        plt.savefig(working_dir + "/confusion_matrix_plot.png")
+
+        # Classification Report shows precision, recall, f1-score for each class
+        print("\nReporte de Clasificación:")
+        print(metrics.classification_report(Y_test, Y_prediction_test))        
+        
         # Save the Trained Model        
         model_filename = working_dir + "/random_forest_model.joblib"
         joblib.dump(model, model_filename)
@@ -121,13 +144,13 @@ def load_model(working_dir):
 
 if __name__ == '__main__':
     # Creates the Random Forest model using the data from the specified directory and file
-    #random_forest("/home/manuel/Maestria/maestria-trainer/data/mix_data_reduced","all_data_mixed_ext.csv")
+    random_forest("/home/manuel/Maestria/maestria-trainer/data/mix_data_reduced_gast","all_data_mixed_ext.csv")
 
     # Loads the Random Forest model from the specified directory and file and runs predictions
-    #'''
-    model = load_model("/home/manuel/Maestria/maestria-trainer/data/mix_data_reduced")
+    '''
+    model = load_model("/home/manuel/Maestria/maestria-trainer/data/mix_data_reduced_gast")
     if model:
-        run_prediction("/home/manuel/Maestria/maestria-trainer/data/mix_data_reduced", "all_data_mixed_ext.csv", model)
+        run_prediction("/home/manuel/Maestria/maestria-trainer/data/mix_data_reduced_gast", "all_data_mixed_ext.csv", model)
     else:
         print("Model could not be loaded, predictions cannot be made.")
     #'''

@@ -9,7 +9,6 @@ def prepare_data(dir_path, clone_csv, non_clone_csv):
         clone_csv_file = dir_path + "/" + clone_csv
         non_clone_csv_file = dir_path + "/" + non_clone_csv
 
-        
         if os.path.exists(clone_csv_file):
             # Open the CSV file explicitly
             with open(clone_csv_file, "r") as f:
@@ -29,7 +28,7 @@ def prepare_data(dir_path, clone_csv, non_clone_csv):
                 clone_df.to_csv(cvs_file_clone_pair_labeled, index=False)
         else:
             print(f"The file :(clone={clone_csv_file}) does not exist!")  
-        
+
         if os.path.exists(non_clone_csv_file):
             # Open the CSV file explicitly
             with open(non_clone_csv_file, "r") as f:
@@ -201,8 +200,8 @@ def append_files_in_dir(working_dir, dir_name, output_file):
 
 if __name__ == '__main__':
     working_dir = '/home/manuel/Maestria/maestria-trainer/data'
-    clone_file_name = 'BCB_clone_ast'
-    non_clone_file_name = 'BCB_nonclone_ast'
+    clone_file_name = 'BCB_clone_gast'
+    non_clone_file_name = 'BCB_nonclone_gast'
 
 
     # Step 1: Prepare data (remove columns and insert labels with clone and non-clone)
@@ -227,7 +226,7 @@ if __name__ == '__main__':
     # Step 4: Complement format for pandas works (read files with titles)
     '''
     # Step 4.1: Merge all files
-    append_files_in_dir(working_dir, "mix_data_reduced", output_file="all_data_mixed")
+    append_files_in_dir(working_dir, "mix_data_reduced_gast", output_file="all_data_mixed")
     # Step 4.2: Add columns titles just to the first file
-    add_columns_title(f"{working_dir}/mix_data_reduced/all_data_mixed.csv")    
+    add_columns_title(f"{working_dir}/mix_data_reduced_gast/all_data_mixed.csv")    
     #'''
